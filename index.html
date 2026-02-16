@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz App using jQuery & Bootstrap</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body class="bg-success-subtle">
+
+<div class="container mt-5">
+    <div class="card mx-auto shadow" style="max-width: 450px;">
+        <div class="card-body text-center">
+
+            <h3 class="card-title mb-4">KCET Quiz</h3>
+
+            <div id="questionBox" class="fw-bold mb-3"></div>
+            <div id="optionsBox" class="text-start"></div>
+
+            <div class="mt-3">
+                <button id="prevBtn" class="btn btn-secondary">Previous</button>
+                <button id="nextBtn" class="btn btn-success">Next</button>
+            </div>
+
+            <div id="result" class="mt-4 d-none"></div>
+            <button id="restart" class="btn btn-warning mt-3 d-none">
+                Restart Quiz
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+
+    var questions = [
+        {
+            q:"Which CSS property changes text color?",
+            options:["font-style","text-color","color","background"],
+            answer:2
+        },
+        {
+            q:"JavaScript is mainly used for?",
+            options:[
+                "Styling pages",
+                "Structuring content",
+                "Adding interactivity",
+                "Database storage"
+            ],
+            answer:2
+        },
+        {
+            q:"WWW stands for?",
+            options:[
+                "World Wide Web",
+                "Web World Wide",
+                "Wide World Web",
+                "World Web Wide"
+            ],
+            answer:0
+        }
+    ];
+
+    var index = 0;
+    var score = 0;
+    var selectedAnswers = [];
+
+    function loadQuestion(){
+        $("#questionBox").text(
+            (index + 1) + ". " + questions[index].q
+        );
+
+        var optHTML = "";
+
+        for(let i = 0; i < questions[index].options.length; i++){
+            var checked = selectedAnswers[index] == i ? "checked" : "";
+
+            optHTML += `
+                <div class="form-check">
+                    <input class="form-check-input" type="radio"
+                        name="opt" value="${i}" ${checked}>
+                    <label class="form-check-label">
+                        ${questions[index].options[i]}
+                    </label>
+                </div>
+            `;
+        }
+
+        $("#optionsBox").html(optHTML);
+    }
+
+    loadQuestion();
+
+    $("#nextBtn").click(function(){
+        var selected = $("input[name=opt]:checked").val();
+
+        if(selected == undefined){
+            alert("Please select an answer!");
+            return;
+        }
+
+        selectedAnswers[index] = parseInt(selected);
+
+        if(index < questions.length - 1){
+            index++;
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    });
+
+    $("#prevBtn").click(function(){
+        if(index > 0){
+            index--;
+            loadQuestion();
+        }
+    });
+
+    function showResult(){
+        score = 0;
+
+        for(let i = 0; i < questions.length; i++){
+            if(selectedAnswers[i] == questions[i].answer){
+                score++;
+            }
+        }
+
+        $("#questionBox, #optionsBox, #nextBtn, #prevBtn").hide();
+
+        $("#result").removeClass("d-none").html(`
+            <h4>Quiz Completed!</h4>
+            <p class="fw-bold">
+                Score: ${score} / ${questions.length}
+            </p>
+        `);
+
+        $("#restart").removeClass("d-none");
+    }
+
+    $("#restart").click(function(){
+        index = 0;
+        score = 0;
+        selectedAnswers = [];
+
+        $("#result, #restart").addClass("d-none");
+        $("#questionBox, #optionsBox, #nextBtn, #prevBtn").show();
+
+        loadQuestion();
+    });
+
+});
+</script>
+
+</body>
+</html>
